@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FeatureItem from './FeatureItem';
+import { FEATURES } from '../../constants/features';
 import './FeaturesTab.css';
 
 export interface Feature {
@@ -10,35 +11,35 @@ export interface Feature {
 }
 
 const FeaturesTab: React.FC = () => {
-  const [features, setFeatures] = useState<Feature[]>([
-    {
-      id: 'feature-1',
-      name: 'Auto Reload',
-      description: 'Automatically reload the page on changes',
-      enabled: false,
-    },
-    {
-      id: 'feature-2',
-      name: 'Dark Mode',
-      description: 'Enable dark mode theme',
-      enabled: true,
-    },
-    {
-      id: 'feature-3',
-      name: 'Console Logger',
-      description: 'Enhanced console logging',
-      enabled: false,
-    },
-  ]);
+  const [features, setFeatures] = useState<Feature[]>([]);
+
+  useEffect(() => {
+    const loadedFeatures = FEATURES.map((feature) => {
+      const savedValue = localStorage.getItem(`features/${feature.id}`);
+      return {
+        ...feature,
+        enabled: savedValue === 'true',
+      };
+    });
+    
+    setFeatures(loadedFeatures);
+  }, []);
 
   const handleToggle = (id: string) => {
-    setFeatures((prevFeatures) =>
-      prevFeatures.map((feature) =>
+    setFeatures((prevFeatures) => {
+      const updatedFeatures = prevFeatures.map((feature) =>
         feature.id === id
           ? { ...feature, enabled: !feature.enabled }
           : feature
-      )
-    );
+      );
+      
+      const toggledFeature = updatedFeatures.find((f) => f.id === id);
+      if (toggledFeature) {
+        localStorage.setItem(`features/${id}`, String(toggledFeature.enabled));
+      }
+      
+      return updatedFeatures;
+    });
   };
 
   return (
