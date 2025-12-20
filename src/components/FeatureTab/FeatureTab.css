@@ -1,0 +1,21 @@
+.feature-tab {
+  padding: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+.feature-tab h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}

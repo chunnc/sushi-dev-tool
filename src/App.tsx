@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
+import FeatureTab from './components/FeatureTab';
+import SettingsTab from './components/SettingsTab';
 import './App.css';
 
+type TabType = 'features' | 'settings';
+
 const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('features');
+
   return (
     <div className="app">
-      <h1>Hello World</h1>
-      <p>Welcome to your Chrome Extension!</p>
+      <div className="tabs">
+        <button
+          className={`tab-button ${activeTab === 'features' ? 'active' : ''}`}
+          onClick={() => setActiveTab('features')}
+        >
+          Features
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
+        </button>
+      </div>
+
+      <div className="tab-content">
+        {activeTab === 'features' && <FeatureTab />}
+        {activeTab === 'settings' && <SettingsTab />}
+      </div>
     </div>
   );
 };
