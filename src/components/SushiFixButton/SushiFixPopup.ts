@@ -171,7 +171,7 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
   return popup;
 }
 
-export function positionPopup(popup: HTMLDivElement, button: HTMLButtonElement) {
+function positionPopup(popup: HTMLDivElement, button: HTMLButtonElement) {
   const buttonRect = button.getBoundingClientRect();
   popup.style.top = `${buttonRect.bottom + window.scrollY}px`;
   popup.style.left = `${buttonRect.left + window.scrollX}px`;

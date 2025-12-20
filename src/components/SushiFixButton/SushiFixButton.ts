@@ -19,8 +19,7 @@ export function createSushiFixButton(props: SushiFixButtonProps): HTMLButtonElem
   
   let popup: HTMLDivElement | null = null;
   
-  // Add click handler
-  button.addEventListener('click', async () => {
+  button.addEventListener('click', () => {
     // Close popup if already open
     if (popup) {
       popup.remove();
