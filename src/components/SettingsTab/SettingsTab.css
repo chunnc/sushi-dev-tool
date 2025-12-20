@@ -6,14 +6,6 @@
   background: #ffffff;
 }
 
-.settings-tab h2 {
-  margin: 0 0 20px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #24292f;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-}
-
 .settings-section {
   background: #ffffff;
   border: 1px solid rgba(27, 31, 36, 0.15);

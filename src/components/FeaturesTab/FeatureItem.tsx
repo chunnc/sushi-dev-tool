@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Feature } from './FeatureTab';
+import type { Feature } from './FeaturesTab';
 import './FeatureItem.css';
 
 interface FeatureItemProps {

@@ -27,7 +27,6 @@ const SettingsTab: React.FC = () => {
 
   return (
     <div className="settings-tab">
-      
       <div className="settings-section">
         <label className="settings-label" htmlFor="api-key">
           OpenAI API Key
