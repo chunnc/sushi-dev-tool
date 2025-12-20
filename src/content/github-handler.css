@@ -2,10 +2,12 @@
 .sushi-fix-button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #7622D7;
-  color: #fff;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: #7622D7;
   border: none;
   border-radius: 4px;
   font-size: 12px;
@@ -16,8 +18,8 @@
 }
 
 .sushi-fix-button:hover:not(:disabled) {
-  background: #8b3ae5;
-  box-shadow: 0 0 8px rgba(118, 34, 215, 0.4);
+  background: rgba(118, 34, 215, 0.1);
+  box-shadow: 0 0 8px rgba(118, 34, 215, 0.2);
 }
 
 .sushi-fix-button:disabled {
