@@ -1,11 +1,11 @@
-.feature-tab {
+.features-tab {
   padding: 16px;
   width: 100%;
   max-width: 400px;
   box-sizing: border-box;
 }
 
-.feature-tab h2 {
+.features-tab h2 {
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 600;

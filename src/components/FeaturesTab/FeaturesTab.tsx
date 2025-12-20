@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FeatureItem from './FeatureItem';
-import './FeatureTab.css';
+import './FeaturesTab.css';
 
 export interface Feature {
   id: string;
@@ -9,7 +9,7 @@ export interface Feature {
   enabled: boolean;
 }
 
-const FeatureTab: React.FC = () => {
+const FeaturesTab: React.FC = () => {
   const [features, setFeatures] = useState<Feature[]>([
     {
       id: 'feature-1',
@@ -42,7 +42,7 @@ const FeatureTab: React.FC = () => {
   };
 
   return (
-    <div className="feature-tab">
+    <div className="features-tab">
       <div className="feature-list">
         {features.map((feature) => (
           <FeatureItem
@@ -56,4 +56,4 @@ const FeatureTab: React.FC = () => {
   );
 };
 
-export default FeatureTab;
+export default FeaturesTab;

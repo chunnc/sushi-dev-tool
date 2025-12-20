@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import FeatureTab from './components/FeatureTab';
+import FeaturesTab from './components/FeaturesTab';
 import SettingsTab from './components/SettingsTab';
 import './App.css';
 
@@ -26,7 +26,7 @@ const App: React.FC = () => {
       </div>
 
       <div className="tab-content">
-        {activeTab === 'features' && <FeatureTab />}
+        {activeTab === 'features' && <FeaturesTab />}
         {activeTab === 'settings' && <SettingsTab />}
       </div>
     </div>
