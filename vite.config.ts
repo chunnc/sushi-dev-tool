@@ -36,14 +36,23 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'src/popup.html')
+        popup: resolve(__dirname, 'src/popup.html'),
+        'github-handler': resolve(__dirname, 'src/content/github-handler.ts')
       },
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'github-handler') {
+            return 'content/github-handler.js';
+          }
+          return '[name].js';
+        },
         chunkFileNames: '[name].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'popup.html') {
             return '[name][extname]';
+          }
+          if (assetInfo.name === 'github-handler.css') {
+            return 'content/[name][extname]';
           }
           return '[name][extname]';
         }

@@ -14,15 +14,16 @@ const FeaturesTab: React.FC = () => {
   const [features, setFeatures] = useState<Feature[]>([]);
 
   useEffect(() => {
-    const loadedFeatures = FEATURES.map((feature) => {
-      const savedValue = localStorage.getItem(`features/${feature.id}`);
-      return {
-        ...feature,
-        enabled: savedValue === 'true',
-      };
-    });
-    
-    setFeatures(loadedFeatures);
+    chrome.storage.local.get(
+      FEATURES.map(f => `features/${f.id}`),
+      (result) => {
+        const loadedFeatures = FEATURES.map((feature) => ({
+          ...feature,
+          enabled: result[`features/${feature.id}`] === 'true',
+        }));
+        setFeatures(loadedFeatures);
+      }
+    );
   }, []);
 
   const handleToggle = (id: string) => {
@@ -35,7 +36,9 @@ const FeaturesTab: React.FC = () => {
       
       const toggledFeature = updatedFeatures.find((f) => f.id === id);
       if (toggledFeature) {
-        localStorage.setItem(`features/${id}`, String(toggledFeature.enabled));
+        chrome.storage.local.set({ 
+          [`features/${id}`]: String(toggledFeature.enabled) 
+        });
       }
       
       return updatedFeatures;

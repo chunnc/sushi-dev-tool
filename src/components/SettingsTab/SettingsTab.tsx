@@ -6,21 +6,23 @@ const SettingsTab: React.FC = () => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedKey = localStorage.getItem('openaiApiKey');
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
+    chrome.storage.local.get(['openaiApiKey'], (result) => {
+      if (result.openaiApiKey) {
+        setApiKey(result.openaiApiKey);
+      }
+    });
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('openaiApiKey', apiKey);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+    chrome.storage.local.set({ openaiApiKey: apiKey }, () => {
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    });
   };
 
   const handleClear = () => {
     setApiKey('');
-    localStorage.removeItem('openaiApiKey');
+    chrome.storage.local.remove(['openaiApiKey']);
   };
 
   return (

@@ -7,5 +7,13 @@
     "default_popup": "popup.html",
     "default_title": "Sushi Dev Tool"
   },
-  "permissions": []
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content/github-handler.js"],
+      "css": ["content/github-handler.css"],
+      "run_at": "document_end"
+    }
+  ]
 }

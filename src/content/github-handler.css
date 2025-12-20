@@ -1,0 +1,30 @@
+/* GitHub Comment Fix Button Styles */
+.sushi-fix-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #7622D7;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.sushi-fix-button:hover:not(:disabled) {
+  background: #8b3ae5;
+  box-shadow: 0 0 8px rgba(118, 34, 215, 0.4);
+}
+
+.sushi-fix-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sushi-fix-button svg {
+  flex-shrink: 0;
+}
