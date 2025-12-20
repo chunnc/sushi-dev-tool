@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Sushi Dev Tool - A Chrome extension with React for development",
   "scripts": {
-    "build": "webpack --mode production",
-    "watch": "webpack --mode development --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [
     "chrome-extension",
@@ -16,14 +17,10 @@
     "@types/chrome": "^0.0.254",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
-    "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^6.8.1",
-    "html-webpack-plugin": "^5.6.0",
-    "style-loader": "^3.3.3",
-    "ts-loader": "^9.5.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "typescript": "^5.3.3",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "vite": "^7.3.0",
+    "vite-plugin-static-copy": "^3.1.4"
   },
   "dependencies": {
     "react": "^18.2.0",
