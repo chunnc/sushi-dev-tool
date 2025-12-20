@@ -1,68 +1,65 @@
 .settings-tab {
-  padding: 16px;
+  padding: 12px;
   width: 100%;
   max-width: 400px;
   box-sizing: border-box;
-  background: #0d0d0d;
+  background: #ffffff;
 }
 
 .settings-tab h2 {
   margin: 0 0 20px 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: #7622D7;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-left: 3px solid #7622D7;
-  padding-left: 12px;
+  color: #24292f;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
 .settings-section {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-left: 3px solid #7622D7;
-  padding: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 8px;
+  padding: 20px;
   box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(27, 31, 36, 0.05);
 }
 
 .settings-label {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #e0e0e0;
+  color: #24292f;
   margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: inherit;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
 .settings-description {
   margin: 0 0 14px 0;
   font-size: 12px;
-  color: #888;
+  color: #57606a;
   line-height: 1.5;
 }
 
 .settings-input {
   width: 100%;
   padding: 10px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  background: #0d0d0d;
-  color: #e0e0e0;
-  border: 1px solid #3a3a3a;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  background: #ffffff;
+  color: #24292f;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .settings-input:focus {
   outline: none;
   border-color: #7622D7;
-  box-shadow: 0 0 8px rgba(118, 34, 215, 0.3);
+  box-shadow: 0 0 0 3px rgba(118, 34, 215, 0.1);
 }
 
 .settings-input::placeholder {
-  color: #555;
+  color: #6e7781;
 }
 
 .settings-actions {
@@ -72,53 +69,55 @@
 }
 
 .btn {
-  padding: 10px 18px;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
-  border: none;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  transition: all 0.15s ease;
 }
 
 .btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-primary {
-  background-color: #7622D7;
-  color: #fff;
-  border: 1px solid #7622D7;
+  background: linear-gradient(to bottom, #7622D7, #6b1fc7);
+  color: #ffffff;
+  border: 1px solid rgba(118, 34, 215, 0.3);
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #8b3ae5;
-  box-shadow: 0 0 12px rgba(118, 34, 215, 0.4);
+  background: linear-gradient(to bottom, #8b3ae5, #7622D7);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(118, 34, 215, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: #888;
-  border: 1px solid #3a3a3a;
+  background: #ffffff;
+  color: #24292f;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #1f1f1f;
-  color: #e0e0e0;
-  border-color: #555;
+  background: #f3f4f6;
+  border-color: rgba(27, 31, 36, 0.25);
 }
 
 .save-notification {
   margin-top: 12px;
-  padding: 10px 12px;
-  background-color: rgba(118, 34, 215, 0.15);
+  padding: 12px 16px;
+  background-color: rgba(118, 34, 215, 0.1);
   color: #7622D7;
-  border-left: 3px solid #7622D7;
-  font-size: 12px;
-  font-weight: 600;
+  border: 1px solid rgba(118, 34, 215, 0.3);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
   animation: slideIn 0.3s ease;
 }
 

@@ -1,17 +1,18 @@
 .app {
   width: 400px;
   min-height: 500px;
-  background: #0d0d0d;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Roboto Mono', monospace;
+  background: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
   box-sizing: border-box;
   overflow: hidden;
-  color: #e0e0e0;
+  color: #24292f;
 }
 
 .tabs {
   display: flex;
-  background: #1a1a1a;
-  border-bottom: 2px solid #7622D7;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(27, 31, 36, 0.15);
+  box-shadow: 0 1px 3px rgba(27, 31, 36, 0.05);
 }
 
 .tab-button {
@@ -19,40 +20,38 @@
   padding: 14px 16px;
   border: none;
   background: none;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  color: #888;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  color: #57606a;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   position: relative;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .tab-button:hover {
-  color: #7622D7;
-  background: #1f1f1f;
+  color: #24292f;
+  background: #f6f8fa;
 }
 
 .tab-button.active {
   color: #7622D7;
-  background: #0d0d0d;
+  background: #ffffff;
+  font-weight: 600;
 }
 
 .tab-button.active::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -1px;
   left: 0;
   right: 0;
   height: 2px;
   background: #7622D7;
-  box-shadow: 0 0 8px #7622D7;
 }
 
 .tab-content {
   overflow-y: auto;
   max-height: calc(500px - 50px);
-  background: #0d0d0d;
+  background: #f6f8fa;
 }
