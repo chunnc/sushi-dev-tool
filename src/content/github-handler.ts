@@ -1,5 +1,5 @@
 import './github-handler.css';
-import { createSushiFixButton } from '../components/SushiFixButton/SushiFixButton';
+import { createSushiFixButton } from '../components/GithubComment/SushiFixButton';
 
 // Check if the GitHub comment fix feature is enabled
 async function isFeatureEnabled(): Promise<boolean> {
