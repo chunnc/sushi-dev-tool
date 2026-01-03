@@ -1,3 +1,5 @@
+import { improveComment } from '../../utils/improveComment';
+
 export interface SushiFixPopupProps {
   text: string;
   buttonElement: HTMLButtonElement;
@@ -59,17 +61,17 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
   `;
   
   // Label
-  const label = document.createElement('div');
-  label.style.cssText = `
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #57606a;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  `;
-  label.textContent = 'Original Text';
+  // const label = document.createElement('div');
+  // label.style.cssText = `
+  //   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  //   font-size: 12px;
+  //   font-weight: 600;
+  //   color: #57606a;
+  //   text-transform: uppercase;
+  //   letter-spacing: 0.5px;
+  //   margin-bottom: 8px;
+  // `;
+  // label.textContent = 'Original Text';
   
   // Text display area
   const textArea = document.createElement('div');
@@ -91,7 +93,6 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
   `;
   textArea.textContent = text;
   
-  content.appendChild(label);
   content.appendChild(textArea);
   
   // Footer with buttons
@@ -163,7 +164,10 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
     replaceButton.style.boxShadow = '0 1px 0 rgba(27, 31, 36, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
   };
   replaceButton.onclick = () => {
-    textarea.value = 'hello world';
+    const improved = (replaceButton as any)._improvedText;
+    if (improved) {
+      textarea.value = improved;
+    }
     closePopup();
   };
   
@@ -178,13 +182,41 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
   positionPopup(popup, buttonElement);
   
   // Run initialization function once when popup is displayed
-  initializePopup();
+  initializePopup(text, textArea, replaceButton);
   
   return popup;
 }
 
-function initializePopup() {
-  console.log('SushiFixPopup is now displayed');
+async function initializePopup(originalText: string, displayArea: HTMLDivElement, replaceButton: HTMLButtonElement) {
+  // Show loading state
+  displayArea.textContent = 'Improving your comment...';
+  displayArea.style.color = '#57606a';
+  displayArea.style.fontStyle = 'italic';
+  replaceButton.disabled = true;
+  replaceButton.style.opacity = '0.5';
+  replaceButton.style.cursor = 'not-allowed';
+  
+  // Call OpenAI to improve the comment
+  const result = await improveComment(originalText);
+  
+  if (result && result.improvedText) {
+    // Show improved text
+    displayArea.textContent = result.improvedText;
+    displayArea.style.color = '#24292f';
+    displayArea.style.fontStyle = 'normal';
+    replaceButton.disabled = false;
+    replaceButton.style.opacity = '1';
+    replaceButton.style.cursor = 'pointer';
+    
+    // Store improved text for replace button
+    (replaceButton as any)._improvedText = result.improvedText;
+  } else {
+    // Show error
+    displayArea.textContent = `Error: Unable to improve comment. ${result?.error || 'Please check your API key configuration.'}`;
+    displayArea.style.color = '#d1242f';
+    displayArea.style.fontStyle = 'normal';
+    replaceButton.disabled = true;
+  }
 }
 
 function positionPopup(popup: HTMLDivElement, button: HTMLButtonElement) {

@@ -6,7 +6,6 @@ async function isFeatureEnabled(): Promise<boolean> {
   return new Promise((resolve) => {
     chrome.storage.local.get(['features/github-comment-fix'], (result) => {
       const enabled = result['features/github-comment-fix'] === 'true';
-      console.log('GitHub comment fix feature enabled:', enabled);
       resolve(enabled);
     });
   });
@@ -53,7 +52,6 @@ async function init() {
   const enabled = await isFeatureEnabled();
   
   if (!enabled) {
-    console.log('GitHub comment fix feature is disabled');
     return;
   }
 
@@ -88,8 +86,6 @@ async function init() {
     childList: true,
     subtree: true,
   });
-
-  console.log('GitHub comment fix feature initialized');
 }
 
 // Run when DOM is ready
