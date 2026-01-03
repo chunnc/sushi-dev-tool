@@ -30,10 +30,20 @@ export function createSushiFixButton(props: SushiFixButtonProps): HTMLButtonElem
     const text = textarea.value;
     if (!text.trim()) return;
     
+    // Define close popup function
+    const closePopup = () => {
+      if (popup) {
+        popup.remove();
+        popup = null;
+      }
+    };
+    
     // Create popup
     popup = createSushiFixPopup({
       text,
-      buttonElement: button
+      buttonElement: button,
+      textarea,
+      closePopup
     });
     document.body.appendChild(popup);
   });

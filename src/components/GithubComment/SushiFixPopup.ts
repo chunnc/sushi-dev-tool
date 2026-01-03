@@ -1,12 +1,14 @@
 export interface SushiFixPopupProps {
   text: string;
   buttonElement: HTMLButtonElement;
+  textarea: HTMLTextAreaElement;
+  closePopup: () => void;
 }
 
 export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
-  const { text, buttonElement } = props;
+  const { text, buttonElement, textarea, closePopup } = props;
   
-  const popup = document.createElement('div');
+  let popup = document.createElement('div');
   popup.className = 'sushi-fix-popup';
   popup.style.cssText = `
     position: absolute;
@@ -129,6 +131,9 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
     discardButton.style.background = '#ffffff';
     discardButton.style.borderColor = 'rgba(27, 31, 36, 0.15)';
   };
+  discardButton.onclick = () => {
+    closePopup();
+  };
   
   // Replace button
   const replaceButton = document.createElement('button');
@@ -157,6 +162,10 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
     replaceButton.style.transform = 'translateY(0)';
     replaceButton.style.boxShadow = '0 1px 0 rgba(27, 31, 36, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
   };
+  replaceButton.onclick = () => {
+    textarea.value = 'hello world';
+    closePopup();
+  };
   
   footer.appendChild(discardButton);
   footer.appendChild(replaceButton);
@@ -168,7 +177,14 @@ export function createSushiFixPopup(props: SushiFixPopupProps): HTMLDivElement {
   // Position popup below the button
   positionPopup(popup, buttonElement);
   
+  // Run initialization function once when popup is displayed
+  initializePopup();
+  
   return popup;
+}
+
+function initializePopup() {
+  console.log('SushiFixPopup is now displayed');
 }
 
 function positionPopup(popup: HTMLDivElement, button: HTMLButtonElement) {
