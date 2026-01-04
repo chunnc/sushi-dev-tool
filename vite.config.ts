@@ -41,12 +41,16 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'src/popup.html'),
-        'github-comment-handler': resolve(__dirname, 'src/content/github-comment-handler.ts')
+        'github-comment-handler': resolve(__dirname, 'src/content/github-comment-handler.ts'),
+        'github-stats-handler': resolve(__dirname, 'src/content/github-stats-handler.ts')
       },
       output: {
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'github-comment-handler') {
             return 'content/github-comment-handler.js';
+          }
+          if (chunkInfo.name === 'github-stats-handler') {
+            return 'content/github-stats-handler.js';
           }
           return '[name].js';
         },
@@ -56,6 +60,9 @@ export default defineConfig({
             return '[name][extname]';
           }
           if (assetInfo.name === 'github-comment-handler.css') {
+            return 'content/[name][extname]';
+          }
+          if (assetInfo.name === 'github-stats-handler.css') {
             return 'content/[name][extname]';
           }
           return '[name][extname]';

@@ -23,6 +23,12 @@
       "js": ["content/github-comment-handler.js"],
       "css": ["content/github-comment-handler.css"],
       "run_at": "document_end"
+    },
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content/github-stats-handler.js"],
+      "css": ["content/github-stats-handler.css"],
+      "run_at": "document_end"
     }
   ]
 }

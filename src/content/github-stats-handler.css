@@ -1,0 +1,136 @@
+/* GitHub Stats Viewer Styles - Dark Mode */
+
+.sushi-stats-viewer {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.sushi-stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #30363d;
+}
+
+.sushi-stats-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.sushi-stats-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.sushi-filter-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8b949e;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sushi-filter-btn:hover {
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.sushi-filter-btn.active {
+  background: #1f6feb;
+  color: #ffffff;
+  border-color: #1f6feb;
+}
+
+.sushi-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sushi-summary-card {
+  text-align: center;
+  padding: 12px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+}
+
+.sushi-summary-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 4px;
+}
+
+.sushi-summary-label {
+  font-size: 11px;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sushi-chart-container {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.sushi-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 12px;
+}
+
+.sushi-chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sushi-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sushi-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.sushi-legend-label {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.sushi-line-chart {
+  display: block;
+  margin: 0 auto;
+}
+
+.sushi-chart-dot {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.sushi-chart-dot:hover {
+  r: 6 !important;
+}
