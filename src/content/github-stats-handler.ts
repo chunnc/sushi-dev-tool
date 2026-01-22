@@ -1,4 +1,5 @@
 import './github-stats-handler.css';
+import { fetchGitHubStats } from '../utils/githubStats';
 
 // Check if the GitHub stats viewer feature is enabled
 async function isFeatureEnabled(): Promise<boolean> {
@@ -80,107 +81,9 @@ function addStatsViewer(retries = 10, delay = 500): void {
   
   let currentFilter: 'weekly' | 'monthly' = 'weekly';
   
-  // Function to create multi-line chart
-  const createLineChart = (datasets: Array<{label: string, data: number[], color: string}>): string => {
-    const width = 800;
-    const height = 300;
-    const padding = { top: 20, right: 20, bottom: 40, left: 60 };
-    const chartWidth = width - padding.left - padding.right;
-    const chartHeight = height - padding.top - padding.bottom;
-    
-    // Find global min and max across all datasets
-    const allValues = datasets.flatMap(d => d.data);
-    const maxValue = Math.max(...allValues);
-    const minValue = Math.min(...allValues);
-    const range = maxValue - minValue || 1;
-    
-    const dataPoints = datasets[0].data.length;
-    
-    // Generate lines
-    const lines = datasets.map(dataset => {
-      const points = dataset.data.map((value, index) => {
-        const x = padding.left + (index / (dataPoints - 1)) * chartWidth;
-        const y = padding.top + chartHeight - ((value - minValue) / range) * chartHeight;
-        return `${x},${y}`;
-      }).join(' ');
-      
-      const circles = dataset.data.map((value, index) => {
-        const x = padding.left + (index / (dataPoints - 1)) * chartWidth;
-        const y = padding.top + chartHeight - ((value - minValue) / range) * chartHeight;
-        return `<circle cx="${x}" cy="${y}" r="4" fill="${dataset.color}" class="sushi-chart-dot" data-value="${value}" data-label="${dataset.label}"/>`;
-      }).join('');
-      
-      return { points, circles, color: dataset.color, label: dataset.label };
-    });
-    
-    // Generate Y-axis labels
-    const yAxisSteps = 5;
-    const yAxisLabels = Array.from({length: yAxisSteps}, (_, i) => {
-      const value = minValue + (range / (yAxisSteps - 1)) * i;
-      const y = padding.top + chartHeight - ((value - minValue) / range) * chartHeight;
-      return `
-        <line x1="${padding.left - 5}" y1="${y}" x2="${padding.left}" y2="${y}" stroke="#30363d" stroke-width="1"/>
-        <text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#8b949e">${Math.round(value).toLocaleString()}</text>
-      `;
-    }).join('');
-    
-    // Generate X-axis labels
-    const periodLabel = currentFilter === 'weekly' ? 'Week' : 'Month';
-    const xAxisLabels = Array.from({length: dataPoints}, (_, i) => {
-      const x = padding.left + (i / (dataPoints - 1)) * chartWidth;
-      return `
-        <line x1="${x}" y1="${padding.top + chartHeight}" x2="${x}" y2="${padding.top + chartHeight + 5}" stroke="#30363d" stroke-width="1"/>
-        <text x="${x}" y="${padding.top + chartHeight + 20}" text-anchor="middle" font-size="11" fill="#8b949e">${periodLabel} ${i + 1}</text>
-      `;
-    }).join('');
-    
-    return `
-      <svg class="sushi-line-chart" width="100%" height="${height}" viewBox="0 0 ${width} ${height}">
-        <!-- Grid lines -->
-        ${Array.from({length: yAxisSteps}, (_, i) => {
-          const y = padding.top + chartHeight - (i / (yAxisSteps - 1)) * chartHeight;
-          return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="#21262d" stroke-width="1"/>`;
-        }).join('')}
-        
-        <!-- Axes -->
-        <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + chartHeight}" stroke="#30363d" stroke-width="2"/>
-        <line x1="${padding.left}" y1="${padding.top + chartHeight}" x2="${padding.left + chartWidth}" y2="${padding.top + chartHeight}" stroke="#30363d" stroke-width="2"/>
-        
-        <!-- Y-axis labels -->
-        ${yAxisLabels}
-        
-        <!-- X-axis labels -->
-        ${xAxisLabels}
-        
-        <!-- Lines -->
-        ${lines.map(line => `
-          <polyline
-            fill="none"
-            stroke="${line.color}"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            points="${line.points}"
-          />
-        `).join('')}
-        
-        <!-- Dots -->
-        ${lines.map(line => line.circles).join('')}
-      </svg>
-    `;
-  };
-  
   // Render function
   const render = () => {
     const data = mockData[currentFilter];
-    const periodLabel = currentFilter === 'weekly' ? 'Last 6 Weeks' : 'Last 6 Months';
-    
-    const chartDatasets = [
-      { label: 'Opened PRs', data: data.openedPRs.trend, color: '#3fb950' },
-      { label: 'Lines of Code (÷100)', data: data.linesOfCode.trend.map(v => Math.round(v / 100)), color: '#58a6ff' },
-      { label: 'Commits', data: data.commits.trend, color: '#a371f7' },
-      { label: 'Reviewed PRs', data: data.reviewedPRs.trend, color: '#f778ba' }
-    ];
     
     statsViewer.innerHTML = `
       <div class="sushi-stats-header">
@@ -212,19 +115,6 @@ function addStatsViewer(retries = 10, delay = 500): void {
           <div class="sushi-summary-value">${data.reviewedPRs.current}</div>
           <div class="sushi-summary-label">Reviewed PRs</div>
         </div>
-      </div>
-      
-      <div class="sushi-chart-container">
-        <div class="sushi-chart-title">Trend - ${periodLabel}</div>
-        <div class="sushi-chart-legend">
-          ${chartDatasets.map(d => `
-            <div class="sushi-legend-item">
-              <span class="sushi-legend-color" style="background-color: ${d.color}"></span>
-              <span class="sushi-legend-label">${d.label}</span>
-            </div>
-          `).join('')}
-        </div>
-        ${createLineChart(chartDatasets)}
       </div>
     `;
     
@@ -266,6 +156,12 @@ async function init() {
   }
 
   // Add the stats viewer to the profile page
+  
+  // Fetch GitHub PRs
+  const repo = 'Thinkei/employment-hero';
+  const author = 'trungeh';
+  
+  fetchGitHubStats(repo, author);
   addStatsViewer();
 }
 
