@@ -1,10 +1,30 @@
 import { isCurrentMonth } from './dateUtils';
+import { getCacheData, setCacheData } from './cacheUtils';
 
 export interface PullRequestData {
   repo: string;
   issueId: string;
   date: string;
   locs: number;
+}
+
+/**
+ * Processes PR data by filtering out null values, removing outdated data, and sorting
+ * @param prData - Array of PR data (may contain null values)
+ * @returns Filtered and sorted list of PullRequestData
+ */
+function processPRData(prData: (PullRequestData | null)[]): PullRequestData[] {
+  return prData
+    .filter((pr): pr is PullRequestData => {
+      if (!pr) return false;
+      return isCurrentMonth(pr.date);
+    })
+    .sort((a, b) => {
+      // Sort by date descending (newest first)
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    });
 }
 
 /**
@@ -16,35 +36,60 @@ export interface PullRequestData {
  */
 export async function fetchGitHubStats(repo: string, author: string): Promise<PullRequestData[]> {
   try {
-    // Fetch list of PRs
+    // Check local storage for cached data
+    const cacheKey = `github-stats-${repo}`;
+    const cachedData = await getCacheData<PullRequestData[]>(cacheKey);
+    
+    // Fetch list of PR IDs from GitHub
     const prIds = await fetchGitHubPullRequests(repo, author);
     
     if (prIds.length === 0) {
       return [];
     }
     
-    // Fetch all PRs asynchronously
-    const prPromises = prIds.map(async (prId) => {
+    // Extract the first issue ID from the list
+    const firstIssueId = prIds[0].replace('issue_', '');
+    
+    // Determine which PRs to fetch
+    let prIdsToFetch: string[];
+    let existingData: PullRequestData[] = [];
+    
+    if (cachedData && cachedData.length > 0 && cachedData[0].issueId === firstIssueId) {
+      // No new PRs, return cached data
+      console.log(`No new PRs found, using cached data for ${repo}`);
+      return cachedData;
+    } else if (cachedData && cachedData.length > 0) {
+      // Find PRs with issue ID greater than the first cached issue ID
+      const firstCachedIssueId = parseInt(cachedData[0].issueId, 10);
+      prIdsToFetch = prIds.filter(prId => {
+        const issueId = prId.replace('issue_', '');
+        return parseInt(issueId, 10) > firstCachedIssueId;
+      });
+      existingData = cachedData;
+      console.log(`Found ${prIdsToFetch.length} new PRs to fetch (issue ID > ${firstCachedIssueId})`);
+    } else {
+      // No cache data, fetch all PRs
+      prIdsToFetch = prIds;
+      console.log(`No cached data found, fetching all PRs for ${repo}`);
+    }
+    
+    // Fetch the required PRs
+    const prPromises = prIdsToFetch.map(async (prId) => {
       const issueId = prId.replace('issue_', '');
       return await fetchPullRequest(repo, issueId);
     });
     
-    const allPrData = await Promise.all(prPromises);
+    const fetchedPrData = await Promise.all(prPromises);
     
-    // Filter out null values and PRs not in current month
-    const prDataList: PullRequestData[] = allPrData
-      .filter((prData): prData is PullRequestData => {
-        if (!prData) return false;
-        return isCurrentMonth(prData.date);
-      })
-      .sort((a, b) => {
-        // Sort by date descending (newest first)
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
-        return dateB - dateA;
-      });
+    // Combine fetched data with existing data and process
+    const combinedData = [...fetchedPrData, ...existingData];
+    const prDataList = processPRData(combinedData);
     
-    console.log('Fetched GitHub stats:', prDataList);
+    // Update cache
+    await setCacheData(cacheKey, prDataList);
+    
+    const newPrCount = fetchedPrData.filter(pr => pr !== null).length;
+    console.log(`GitHub stats updated with ${newPrCount} new PRs:`, prDataList);
     return prDataList;
   } catch (error) {
     console.error('Error fetching GitHub stats:', error);

@@ -54,7 +54,7 @@ export default defineConfig({
           }
           return '[name].js';
         },
-        chunkFileNames: '[name].js',
+        chunkFileNames: 'content/[name].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'popup.html') {
             return '[name][extname]';
@@ -66,8 +66,12 @@ export default defineConfig({
             return 'content/[name][extname]';
           }
           return '[name][extname]';
-        }
+        },
+        inlineDynamicImports: false,
+        manualChunks: undefined
       }
-    }
+    },
+    // Disable minification to prevent variable name conflicts
+    minify: false
   }
 });
