@@ -11,13 +11,6 @@ const SettingsTab: React.FC = () => {
         description="Enter your OpenAI API key to enable AI-powered features"
         placeholder="sk-..."
       />
-
-      <SettingInput
-        storageKey="githubAccessToken"
-        label="GitHub Access Token"
-        description="Enter your GitHub personal access token to access private repositories and increase API rate limits"
-        placeholder="ghp_..."
-      />
     </div>
   );
 };
