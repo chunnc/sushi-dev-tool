@@ -109,7 +109,7 @@ function addStatsViewer(prData: any[], retries = 10, delay = 500): void {
       <div class="sushi-summary-cards">
         <div class="sushi-summary-card">
           <div class="sushi-summary-value">${totalPRs}</div>
-          <div class="sushi-summary-label">Opened PRs</div>
+          <div class="sushi-summary-label">Merged PRs</div>
         </div>
         <div class="sushi-summary-card">
           <div class="sushi-summary-value">${totalLOCs.toLocaleString()}</div>
