@@ -6,6 +6,20 @@ export interface PullRequestData {
 }
 
 /**
+ * Checks if a date string is within the current month
+ * @param dateString - Date string to check
+ * @returns true if date is in current month, false otherwise
+ */
+function isCurrentMonth(dateString: string): boolean {
+  const date = new Date(dateString);
+  const currentDate = new Date();
+  
+  return !isNaN(date.getTime()) && 
+         date.getMonth() === currentDate.getMonth() && 
+         date.getFullYear() === currentDate.getFullYear();
+}
+
+/**
  * Fetches GitHub stats by getting PR list and the first PR details
  * @param repo - Repository in format "owner/repoName" (e.g., "Thinkei/employment-hero")
  * @param author - GitHub username of the PR author
@@ -21,33 +35,26 @@ export async function fetchGitHubStats(repo: string, author: string): Promise<Pu
       return [];
     }
     
-    // Fetch all PRs
-    const prDataList: PullRequestData[] = [];
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    
-    for (const prId of prIds) {
-      // Extract issue ID from the PR (format: "issue_123" -> "123")
+    // Fetch all PRs asynchronously
+    const prPromises = prIds.map(async (prId) => {
       const issueId = prId.replace('issue_', '');
-      
-      // Fetch the PR
-      const prData = await fetchPullRequest(repo, issueId);
-      
-      if (prData) {
-        // Parse the date to check if it's in the current month
-        const prDate = new Date(prData.date);
-        
-        // If date is invalid or not in current month, break the loop
-        if (isNaN(prDate.getTime()) || 
-            prDate.getMonth() !== currentMonth || 
-            prDate.getFullYear() !== currentYear) {
-          break;
-        }
-        
-        prDataList.push(prData);
-      }
-    }
+      return await fetchPullRequest(repo, issueId);
+    });
+    
+    const allPrData = await Promise.all(prPromises);
+    
+    // Filter out null values and PRs not in current month
+    const prDataList: PullRequestData[] = allPrData
+      .filter((prData): prData is PullRequestData => {
+        if (!prData) return false;
+        return isCurrentMonth(prData.date);
+      })
+      .sort((a, b) => {
+        // Sort by date descending (newest first)
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA;
+      });
     
     console.log('Fetched GitHub stats:', prDataList);
     return prDataList;
@@ -94,40 +101,47 @@ export async function fetchGitHubPullRequests(repo: string, author: string, page
 }
 
 /**
- * Extracts LOCs from a parsed PR document
- * @param doc - Parsed HTML document
+ * Fetches diffstat data from GitHub PR partials API
+ * @param repo - Repository in format "owner/repoName"
+ * @param issueId - The issue/PR number
  * @returns Total lines of code (additions + deletions)
  */
-function extractLocsFromDocument(doc: Document): number {
-  let totalLocs = 0;
-  
-  // Query for diffstat component
-  let diffstatElement = doc.querySelector('.diffstat');
-  
-  if (!diffstatElement) {
-    console.log('No diffstat element found, will retry...');
-    // Note: In fetched HTML, dynamic content won't load
-    // This is a limitation of using fetch() vs browser navigation
+async function fetchDiffstat(repo: string, issueId: string): Promise<number> {
+  try {
+    const url = `https://github.com/${repo}/pull/${issueId}/partials/tabs?tab=files`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const html = await response.text();
+    
+    // Parse HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Extract LOCs from diffstat
+    let totalLocs = 0;
+    const diffstatElement = doc.querySelector('.diffstat');
+    
+    if (diffstatElement) {
+      const text = diffstatElement.textContent?.trim() || '';
+      const numbers = text.match(/\d+/g);
+      
+      if (numbers && numbers.length >= 2) {
+        const additions = parseInt(numbers[0], 10);
+        const deletions = parseInt(numbers[1], 10);
+        totalLocs = additions + deletions;
+      }
+    }
+    
+    return totalLocs;
+  } catch (error) {
+    console.error(`Error fetching diffstat for PR #${issueId}:`, error);
     return 0;
   }
-  
-  console.log('Found diffstat element');
-  console.log('Diffstat HTML:', diffstatElement.outerHTML);
-  console.log('Diffstat text:', diffstatElement.textContent);
-  
-  // Extract numbers from the diffstat text
-  const text = diffstatElement.textContent?.trim() || '';
-  const numbers = text.match(/\d+/g);
-  
-  if (numbers && numbers.length >= 2) {
-    // Usually format is: "+123 -45" or "123 additions & 45 deletions"
-    const additions = parseInt(numbers[0], 10);
-    const deletions = parseInt(numbers[1], 10);
-    totalLocs = additions + deletions;
-    console.log(`LOCs: ${additions} additions + ${deletions} deletions = ${totalLocs}`);
-  }
-  
-  return totalLocs;
 }
 
 /**
@@ -151,20 +165,27 @@ export async function fetchPullRequest(repo: string, issueId: string): Promise<P
     
     const html = await response.text();
     
-    // Parse HTML to find relative-time tag
+    // Parse HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const relativeTimes = doc.querySelectorAll('relative-time');
     
-    let date = '';
-    if (relativeTimes.length > 0) {
-      date = relativeTimes[0].textContent?.trim() || '';
-    } else {
-      console.log('No relative-time tags found');
+    // Extract date
+    const relativeTimes = doc.querySelectorAll('relative-time');
+    const date = relativeTimes.length > 0 ? relativeTimes[0].textContent?.trim() || '' : '';
+    
+    // Check if date is in current month
+    if (!isCurrentMonth(date)) {
+      const prData: PullRequestData = {
+        repo,
+        issueId,
+        date,
+        locs: 0
+      };
+      return prData;
     }
     
-    // Find diffstat to calculate LOCs
-    const totalLocs = extractLocsFromDocument(doc);
+    // Fetch diffstat for PRs in current month
+    const totalLocs = await fetchDiffstat(repo, issueId);
     
     // Create and return PullRequestData
     const prData: PullRequestData = {

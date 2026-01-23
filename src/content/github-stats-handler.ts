@@ -34,15 +34,28 @@ function isProfilePage(): boolean {
          !!document.querySelector('meta[property="og:type"][content="profile"]');
 }
 
+// Extract GitHub username from the current page
+function getGitHubUsername(): string | null {
+  const path = window.location.pathname;
+  const pathParts = path.split('/').filter(p => p);
+  
+  // Profile URL format: /username or /username/repositories etc
+  if (pathParts.length >= 1) {
+    return pathParts[0];
+  }
+  
+  return null;
+}
+
 // Add stats viewer to the profile page
-function addStatsViewer(retries = 10, delay = 500): void {
+function addStatsViewer(prData: any[], retries = 10, delay = 500): void {
   // Find the yearly contributions component
   const yearlyContributions = document.querySelector('.js-yearly-contributions');
   
   if (!yearlyContributions) {
     if (retries > 0) {
       console.log(`Yearly contributions component not found, retrying... (${retries} attempts left)`);
-      setTimeout(() => addStatsViewer(retries - 1, delay), delay);
+      setTimeout(() => addStatsViewer(prData, retries - 1, delay), delay);
     } else {
       console.log('Yearly contributions component not found after all retries');
     }
@@ -63,36 +76,28 @@ function addStatsViewer(retries = 10, delay = 500): void {
   const statsViewer = document.createElement('div');
   statsViewer.className = 'sushi-stats-viewer';
   
-  // Mock data
-  const mockData = {
-    weekly: {
-      openedPRs: { current: 12, trend: [8, 10, 15, 11, 9, 12] },
-      linesOfCode: { current: 3420, trend: [2100, 2800, 4200, 3100, 2900, 3420] },
-      commits: { current: 34, trend: [28, 32, 41, 30, 29, 34] },
-      reviewedPRs: { current: 8, trend: [6, 9, 12, 7, 6, 8] }
-    },
-    monthly: {
-      openedPRs: { current: 47, trend: [38, 42, 51, 45, 40, 47] },
-      linesOfCode: { current: 15680, trend: [12400, 14200, 18900, 14800, 13600, 15680] },
-      commits: { current: 142, trend: [118, 135, 156, 128, 124, 142] },
-      reviewedPRs: { current: 29, trend: [22, 26, 34, 28, 24, 29] }
-    }
+  // Process fetched data
+  const totalPRs = prData.length;
+  const totalLOCs = prData.reduce((sum, pr) => sum + pr.locs, 0);
+  
+  // Create data structure for the UI
+  const data = {
+    openedPRs: { current: totalPRs },
+    linesOfCode: { current: totalLOCs }
   };
   
   let currentFilter: 'weekly' | 'monthly' = 'weekly';
   
   // Render function
   const render = () => {
-    const data = mockData[currentFilter];
-    
     statsViewer.innerHTML = `
       <div class="sushi-stats-header">
         <h2 class="sushi-stats-title">Developer Metrics</h2>
         <div class="sushi-stats-filters">
-          <button class="sushi-filter-btn ${currentFilter === 'weekly' ? 'active' : ''}" data-filter="weekly">
+          <button class="sushi-filter-btn active" data-filter="weekly">
             Weekly
           </button>
-          <button class="sushi-filter-btn ${currentFilter === 'monthly' ? 'active' : ''}" data-filter="monthly">
+          <button class="sushi-filter-btn" data-filter="monthly" disabled>
             Monthly
           </button>
         </div>
@@ -106,14 +111,6 @@ function addStatsViewer(retries = 10, delay = 500): void {
         <div class="sushi-summary-card">
           <div class="sushi-summary-value">${data.linesOfCode.current.toLocaleString()}</div>
           <div class="sushi-summary-label">Lines of Code</div>
-        </div>
-        <div class="sushi-summary-card">
-          <div class="sushi-summary-value">${data.commits.current}</div>
-          <div class="sushi-summary-label">Total Commits</div>
-        </div>
-        <div class="sushi-summary-card">
-          <div class="sushi-summary-value">${data.reviewedPRs.current}</div>
-          <div class="sushi-summary-label">Reviewed PRs</div>
         </div>
       </div>
     `;
@@ -155,14 +152,18 @@ async function init() {
     return;
   }
 
-  // Add the stats viewer to the profile page
-  
+  // Get the GitHub username from the current page
+  const author = getGitHubUsername();
+  if (!author) {
+    console.error('Could not extract GitHub username from page');
+    return;
+  }
+
   // Fetch GitHub PRs
   const repo = 'Thinkei/employment-hero';
-  const author = 'trungeh';
   
-  fetchGitHubStats(repo, author);
-  addStatsViewer();
+  const prData = await fetchGitHubStats(repo, author);
+  addStatsViewer(prData);
 }
 
 // Run when DOM is ready
