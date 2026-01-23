@@ -1,5 +1,6 @@
 import './github-stats-handler.css';
 import { fetchGitHubStats } from '../utils/githubStats';
+import { isCurrentWeek } from '../utils/dateUtils';
 
 // Check if the GitHub stats viewer feature is enabled
 async function isFeatureEnabled(): Promise<boolean> {
@@ -76,28 +77,30 @@ function addStatsViewer(prData: any[], retries = 10, delay = 500): void {
   const statsViewer = document.createElement('div');
   statsViewer.className = 'sushi-stats-viewer';
   
-  // Process fetched data
-  const totalPRs = prData.length;
-  const totalLOCs = prData.reduce((sum, pr) => sum + pr.locs, 0);
-  
-  // Create data structure for the UI
-  const data = {
-    openedPRs: { current: totalPRs },
-    linesOfCode: { current: totalLOCs }
-  };
-  
   let currentFilter: 'weekly' | 'monthly' = 'weekly';
   
   // Render function
   const render = () => {
+    // Filter data based on selected filter
+    let filteredData = prData;
+    
+    if (currentFilter === 'weekly') {
+      filteredData = prData.filter(pr => isCurrentWeek(pr.date));
+    }
+    // For monthly, all prData is already filtered to current month by fetchGitHubStats
+    
+    // Calculate totals from filtered data
+    const totalPRs = filteredData.length;
+    const totalLOCs = filteredData.reduce((sum, pr) => sum + pr.locs, 0);
+    
     statsViewer.innerHTML = `
       <div class="sushi-stats-header">
         <h2 class="sushi-stats-title">Developer Metrics</h2>
         <div class="sushi-stats-filters">
-          <button class="sushi-filter-btn active" data-filter="weekly">
+          <button class="sushi-filter-btn ${currentFilter === 'weekly' ? 'active' : ''}" data-filter="weekly">
             Weekly
           </button>
-          <button class="sushi-filter-btn" data-filter="monthly" disabled>
+          <button class="sushi-filter-btn ${currentFilter === 'monthly' ? 'active' : ''}" data-filter="monthly">
             Monthly
           </button>
         </div>
@@ -105,11 +108,11 @@ function addStatsViewer(prData: any[], retries = 10, delay = 500): void {
       
       <div class="sushi-summary-cards">
         <div class="sushi-summary-card">
-          <div class="sushi-summary-value">${data.openedPRs.current}</div>
+          <div class="sushi-summary-value">${totalPRs}</div>
           <div class="sushi-summary-label">Opened PRs</div>
         </div>
         <div class="sushi-summary-card">
-          <div class="sushi-summary-value">${data.linesOfCode.current.toLocaleString()}</div>
+          <div class="sushi-summary-value">${totalLOCs.toLocaleString()}</div>
           <div class="sushi-summary-label">Lines of Code</div>
         </div>
       </div>
@@ -121,7 +124,7 @@ function addStatsViewer(prData: any[], retries = 10, delay = 500): void {
       button.addEventListener('click', (e) => {
         const target = e.target as HTMLButtonElement;
         const filter = target.dataset.filter as 'weekly' | 'monthly';
-        if (filter) {
+        if (filter && filter !== currentFilter) {
           currentFilter = filter;
           render();
         }

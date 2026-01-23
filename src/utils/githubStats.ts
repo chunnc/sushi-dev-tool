@@ -1,22 +1,10 @@
+import { isCurrentMonth } from './dateUtils';
+
 export interface PullRequestData {
   repo: string;
   issueId: string;
   date: string;
   locs: number;
-}
-
-/**
- * Checks if a date string is within the current month
- * @param dateString - Date string to check
- * @returns true if date is in current month, false otherwise
- */
-function isCurrentMonth(dateString: string): boolean {
-  const date = new Date(dateString);
-  const currentDate = new Date();
-  
-  return !isNaN(date.getTime()) && 
-         date.getMonth() === currentDate.getMonth() && 
-         date.getFullYear() === currentDate.getFullYear();
 }
 
 /**
