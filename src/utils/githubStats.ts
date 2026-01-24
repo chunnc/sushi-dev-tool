@@ -154,9 +154,17 @@ export async function fetchGitHubPullRequests(repo: string, author: string, page
     // Find all divs with id starting with "issue_"
     const divs = doc.querySelectorAll('div[id^="issue_"]');
     
-    // Extract and return the IDs
-    const ids = Array.from(divs).map(div => div.id);
-    
+    // Filter divs by checking relative-time tag and current month
+    const ids = Array.from(divs)
+      .filter(div => {
+        const relativeTime = div.querySelector('relative-time');
+        if (!relativeTime) return false;
+        
+        const date = relativeTime.getAttribute('datetime') || relativeTime.textContent?.trim() || '';
+        
+        return isCurrentMonth(date);
+      })
+      .map(div => div.id);
     return ids;
   } catch (error) {
     console.error('Error fetching GitHub pull requests:', error);
