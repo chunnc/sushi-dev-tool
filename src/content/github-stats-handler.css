@@ -26,9 +26,96 @@
   color: #c9d1d9;
 }
 
+.sushi-stats-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.sushi-repo-selector {
+  position: relative;
+}
+
+.sushi-repo-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #c9d1d9;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+  justify-content: space-between;
+}
+
+.sushi-repo-dropdown-btn:hover {
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.sushi-repo-dropdown-btn svg {
+  flex-shrink: 0;
+}
+
+.sushi-repo-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.sushi-repo-dropdown-menu.open {
+  display: block;
+}
+
+.sushi-repo-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sushi-repo-option:hover {
+  background: #21262d;
+}
+
+.sushi-repo-option input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.sushi-repo-option span {
+  font-size: 14px;
+  color: #c9d1d9;
+}
+
 .sushi-stats-filters {
   display: flex;
   gap: 8px;
+}
+
+.sushi-loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: #8b949e;
+  font-size: 14px;
 }
 
 .sushi-filter-btn {
