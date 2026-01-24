@@ -56,7 +56,6 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
   
   if (!yearlyContributions) {
     if (retries > 0) {
-      console.log(`Yearly contributions component not found, retrying... (${retries} attempts left)`);
       setTimeout(() => addStatsViewer(author, retries - 1, delay), delay);
     } else {
       console.log('Yearly contributions component not found after all retries');
