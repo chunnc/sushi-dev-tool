@@ -37,7 +37,7 @@ function processPRData(prData: (PullRequestData | null)[]): PullRequestData[] {
 export async function fetchGitHubStats(repo: string, author: string): Promise<PullRequestData[]> {
   try {
     // Check local storage for cached data
-    const cacheKey = `github-stats-${repo}`;
+    const cacheKey = `github-stats-${repo}/${author}`;
     const cachedData = await getCacheData<PullRequestData[]>(cacheKey);
     
     // Fetch list of PR IDs from GitHub
