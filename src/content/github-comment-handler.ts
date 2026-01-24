@@ -1,4 +1,4 @@
-import './github-handler.css';
+import './github-comment-handler.css';
 import { createSushiFixButton } from '../components/GithubComment/SushiFixButton';
 
 // Check if the GitHub comment fix feature is enabled

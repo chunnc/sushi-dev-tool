@@ -41,26 +41,37 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'src/popup.html'),
-        'github-handler': resolve(__dirname, 'src/content/github-handler.ts')
+        'github-comment-handler': resolve(__dirname, 'src/content/github-comment-handler.ts'),
+        'github-stats-handler': resolve(__dirname, 'src/content/github-stats-handler.ts')
       },
       output: {
         entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'github-handler') {
-            return 'content/github-handler.js';
+          if (chunkInfo.name === 'github-comment-handler') {
+            return 'content/github-comment-handler.js';
+          }
+          if (chunkInfo.name === 'github-stats-handler') {
+            return 'content/github-stats-handler.js';
           }
           return '[name].js';
         },
-        chunkFileNames: '[name].js',
+        chunkFileNames: 'content/[name].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'popup.html') {
             return '[name][extname]';
           }
-          if (assetInfo.name === 'github-handler.css') {
+          if (assetInfo.name === 'github-comment-handler.css') {
+            return 'content/[name][extname]';
+          }
+          if (assetInfo.name === 'github-stats-handler.css') {
             return 'content/[name][extname]';
           }
           return '[name][extname]';
-        }
+        },
+        inlineDynamicImports: false,
+        manualChunks: undefined
       }
-    }
+    },
+    // Disable minification to prevent variable name conflicts
+    minify: false
   }
 });
