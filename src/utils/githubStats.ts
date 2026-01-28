@@ -199,7 +199,7 @@ async function fetchDiffstat(repo: string, issueId: string): Promise<number> {
     const diffstatElement = doc.querySelector('.diffstat');
     
     if (diffstatElement) {
-      const text = diffstatElement.textContent?.trim() || '';
+      const text = diffstatElement.textContent?.trim().replace(/,/g, '') || '';
       const numbers = text.match(/\d+/g);
       
       if (numbers && numbers.length >= 2) {
