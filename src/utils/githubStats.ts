@@ -14,17 +14,23 @@ export interface PullRequestData {
  * @returns Filtered and sorted list of PullRequestData
  */
 function processPRData(prData: (PullRequestData | null)[]): PullRequestData[] {
-  return prData
-    .filter((pr): pr is PullRequestData => {
-      if (!pr) return false;
-      return isCurrentMonth(pr.date);
-    })
-    .sort((a, b) => {
-      // Sort by date descending (newest first)
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return dateB - dateA;
-    });
+  const filtered = prData.filter((pr): pr is PullRequestData => {
+    if (!pr) return false;
+    return isCurrentMonth(pr.date);
+  });
+
+  // Deduplicate by issueId (first occurrence wins)
+  const seen = new Map<string, PullRequestData>();
+  for (const pr of filtered) {
+    if (!seen.has(pr.issueId)) {
+      seen.set(pr.issueId, pr);
+    }
+  }
+
+  return Array.from(seen.values()).sort((a, b) => {
+    // Sort by issue ID descending (highest first)
+    return parseInt(b.issueId, 10) - parseInt(a.issueId, 10);
+  });
 }
 
 /**
@@ -43,12 +49,8 @@ export async function fetchGitHubStatsMultiRepo(repos: string[], author: string)
     // Combine all PR data
     const combinedData = allPrData.flat();
     
-    // Sort by date descending (newest first)
-    combinedData.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return dateB - dateA;
-    });
+    // Sort by issue ID descending (highest first)
+    combinedData.sort((a, b) => parseInt(b.issueId, 10) - parseInt(a.issueId, 10));
     
     console.log(`Fetched stats from ${repos.length} repositories:`, combinedData.length, 'PRs');
     return combinedData;
@@ -78,31 +80,11 @@ export async function fetchGitHubStats(repo: string, author: string): Promise<Pu
       return [];
     }
     
-    // Extract the first issue ID from the list
-    const firstIssueId = prIds[0].replace('issue_', '');
-    
-    // Determine which PRs to fetch
-    let prIdsToFetch: string[];
-    let existingData: PullRequestData[] = [];
-    
-    if (cachedData && cachedData.length > 0 && cachedData[0].issueId === firstIssueId) {
-      // No new PRs, return cached data
-      console.log(`No new PRs found, using cached data for ${repo}`);
-      return cachedData;
-    } else if (cachedData && cachedData.length > 0) {
-      // Find PRs with issue ID greater than the first cached issue ID
-      const firstCachedIssueId = parseInt(cachedData[0].issueId, 10);
-      prIdsToFetch = prIds.filter(prId => {
-        const issueId = prId.replace('issue_', '');
-        return parseInt(issueId, 10) > firstCachedIssueId;
-      });
-      existingData = cachedData;
-      console.log(`Found ${prIdsToFetch.length} new PRs to fetch (issue ID > ${firstCachedIssueId})`);
-    } else {
-      // No cache data, fetch all PRs
-      prIdsToFetch = prIds;
-      console.log(`No cached data found, fetching all PRs for ${repo}`);
-    }
+    // Determine which PRs are missing from cache
+    const existingData: PullRequestData[] = cachedData ?? [];
+    const cachedIssueIdSet = new Set(existingData.map(pr => pr.issueId));
+    const prIdsToFetch = prIds.filter(prId => !cachedIssueIdSet.has(prId.replace('issue_', '')));
+    console.log(`Found ${prIdsToFetch.length} missing PRs to fetch for ${repo}`);
     
     // Fetch the required PRs
     const prPromises = prIdsToFetch.map(async (prId) => {
