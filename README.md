@@ -8,7 +8,28 @@ A Chrome extension for developers built with React and TypeScript.
 - **TypeScript** - Type-safe JavaScript
 - **Chrome Extension APIs** - Browser extension framework
 
-## Getting Started
+## Project Structure
+
+```
+sushi-dev-tool/
+├── src/
+│   ├── components/          # React popup UI components
+│   │   ├── FeaturesTab/     # Feature toggle list
+│   │   └── SettingsTab/     # Settings inputs (e.g. API key)
+│   ├── content/             # Chrome content scripts (injected into GitHub pages)
+│   │   ├── github-comment-handler.ts
+│   │   └── github-stats-handler.ts
+│   ├── constants/           # Static data (feature definitions, repository list)
+│   ├── utils/               # Shared utilities (GitHub API, caching, date helpers)
+│   ├── App.tsx              # Root popup component
+│   └── popup.html           # Extension popup entry point
+├── dist/                    # Build output (generated)
+├── icons/                   # Extension icons
+├── manifest.json            # Chrome extension manifest
+└── vite.config.ts           # Build configuration
+```
+
+
 
 1. Install dependencies:
 ```bash
