@@ -50,7 +50,7 @@ function getGitHubUsername(): string | null {
 }
 
 // Add stats viewer to the profile page
-function addStatsViewer(author: string, retries = 10, delay = 500): void {
+async function addStatsViewer(author: string, retries = 10, delay = 500): Promise<void> {
   // Find the yearly contributions component
   const yearlyContributions = document.querySelector('.js-yearly-contributions');
   
@@ -82,6 +82,18 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
   let prData: any[] = [];
   let isDropdownOpen = false;
   let isLoading = false;
+  let customRepos: string[] = [];
+  let customRepoInput = '';
+
+  // Load custom repos from Chrome storage
+  await new Promise<void>((resolve) => {
+    chrome.storage.local.get(['custom-repos'], (result) => {
+      if (Array.isArray(result['custom-repos'])) {
+        customRepos = result['custom-repos'];
+      }
+      resolve();
+    });
+  });
   
   // Fetch stats for selected repositories
   const fetchStats = async () => {
@@ -90,8 +102,9 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
     render();
     
     try {
+      const allRepoIds = [...REPOSITORIES.map(r => r.id), ...customRepos];
       const reposToFetch = selectedRepos.has('all') 
-        ? REPOSITORIES.map(r => r.id)
+        ? allRepoIds
         : Array.from(selectedRepos);
       
       // Use fetchGitHubStatsMultiRepo for all cases
@@ -121,8 +134,9 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
     
     // Build repository options
     const repoOptions = [
-      { id: 'all', label: 'All Repositories' },
-      ...REPOSITORIES.map(r => ({ id: r.id, label: r.id }))
+      { id: 'all', label: 'All Repositories', isCustom: false },
+      ...REPOSITORIES.map(r => ({ id: r.id, label: r.id, isCustom: false })),
+      ...customRepos.map(r => ({ id: r, label: r, isCustom: true }))
     ];
     
     const selectedCount = selectedRepos.has('all') 
@@ -143,6 +157,15 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
               </svg>
             </button>
             <div class="sushi-repo-dropdown-menu ${isDropdownOpen ? 'open' : ''}">
+              <div class="sushi-repo-input-row">
+                <input
+                  type="text"
+                  class="sushi-repo-input"
+                  placeholder="Add repo name..."
+                  value="${customRepoInput.replace(/"/g, '&quot;')}"
+                />
+                <button class="sushi-repo-add-btn" type="button" title="Add repository">+</button>
+              </div>
               ${repoOptions.map(repo => `
                 <label class="sushi-repo-option">
                   <input 
@@ -151,6 +174,7 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
                     ${selectedRepos.has(repo.id) ? 'checked' : ''}
                   />
                   <span>${repo.label}</span>
+                  ${repo.isCustom ? `<button class="sushi-repo-remove-btn" data-repo="${repo.id}" type="button" title="Remove repository">×</button>` : ''}
                 </label>
               `).join('')}
             </div>
@@ -188,6 +212,62 @@ function addStatsViewer(author: string, retries = 10, delay = 500): void {
       e.stopPropagation();
       isDropdownOpen = !isDropdownOpen;
       render();
+    });
+
+    // Add event listeners for custom repo input
+    const repoInput = statsViewer.querySelector('.sushi-repo-input') as HTMLInputElement | null;
+    const addBtn = statsViewer.querySelector('.sushi-repo-add-btn');
+
+    const handleAddRepo = async () => {
+      const value = repoInput?.value.trim() ?? '';
+      if (!value) return;
+      const allIds = [...REPOSITORIES.map(r => r.id.toLowerCase()), ...customRepos.map(r => r.toLowerCase())];
+      if (allIds.includes(value.toLowerCase())) {
+        customRepoInput = '';
+        render();
+        return;
+      }
+      customRepos.push(value);
+      customRepoInput = '';
+      chrome.storage.local.set({ 'custom-repos': customRepos });
+      render();
+    };
+
+    repoInput?.addEventListener('input', (e) => {
+      customRepoInput = (e.target as HTMLInputElement).value;
+    });
+
+    repoInput?.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        await handleAddRepo();
+      }
+    });
+
+    addBtn?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await handleAddRepo();
+    });
+
+    // Prevent dropdown close when interacting with input
+    repoInput?.addEventListener('click', (e) => e.stopPropagation());
+
+    // Add event listeners to remove buttons
+    const removeBtns = statsViewer.querySelectorAll('.sushi-repo-remove-btn');
+    removeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const repoId = (btn as HTMLButtonElement).dataset.repo;
+        if (repoId) {
+          customRepos = customRepos.filter(r => r !== repoId);
+          selectedRepos.delete(repoId);
+          if (selectedRepos.size === 0) selectedRepos.add('all');
+          chrome.storage.local.set({ 'custom-repos': customRepos });
+          render();
+        }
+      });
     });
     
     // Add event listeners to checkboxes
