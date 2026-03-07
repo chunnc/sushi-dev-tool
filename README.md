@@ -1,39 +1,35 @@
 # Sushi Dev Tool
 
-A Chrome extension development tool built with React and TypeScript.
+A Chrome extension for developers built with React and TypeScript.
+
+## Technologies
+
+- **React** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **Chrome Extension APIs** - Browser extension framework
 
 ## Project Structure
 
 ```
 sushi-dev-tool/
 ├── src/
-│   ├── App.tsx          # Main React component
-│   ├── App.css          # Styles for the component
-│   ├── popup.tsx        # Entry point for React
-│   └── popup.html       # HTML template
-├── dist/                # Build output (generated)
-├── manifest.json        # Chrome extension manifest
-├── package.json         # NPM dependencies
-├── tsconfig.json        # TypeScript configuration
-└── webpack.config.js    # Webpack bundler configuration
+│   ├── components/          # React popup UI components
+│   │   ├── FeaturesTab/     # Feature toggle list
+│   │   └── SettingsTab/     # Settings inputs (e.g. API key)
+│   ├── content/             # Chrome content scripts (injected into GitHub pages)
+│   │   ├── github-comment-handler.ts
+│   │   └── github-stats-handler.ts
+│   ├── constants/           # Static data (feature definitions, repository list)
+│   ├── utils/               # Shared utilities (GitHub API, caching, date helpers)
+│   ├── App.tsx              # Root popup component
+│   └── popup.html           # Extension popup entry point
+├── dist/                    # Build output (generated)
+├── icons/                   # Extension icons
+├── manifest.json            # Chrome extension manifest
+└── vite.config.ts           # Build configuration
 ```
 
-## Technologies Used
 
-- **React 18** - UI library
-- **TypeScript** - Type-safe JavaScript
-- **Webpack 5** - Module bundler
-- **Chrome Extension APIs** - Browser extension framework
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Google Chrome browser
-
-### Installation
 
 1. Install dependencies:
 ```bash
@@ -45,63 +41,56 @@ npm install
 npm run build
 ```
 
-This will create a `dist/` folder with the compiled extension.
+3. Load the extension in Chrome:
+   - Open Chrome and go to `chrome://extensions/`
+   - Enable **Developer mode** (toggle in the top-right corner)
+   - Click **Load unpacked**
+   - Select the `dist/` folder from this project
 
-### Loading the Extension in Chrome
+After loading, the Sushi Dev Tool icon will appear in your Chrome toolbar. Click it to open the popup, where you can toggle features on/off and configure settings.
 
-1. Open Google Chrome
-2. Navigate to `chrome://extensions/`
-3. Enable **Developer mode** (toggle in the top-right corner)
-4. Click **Load unpacked**
-5. Select the `dist/` folder from this project
-6. The extension icon should appear in your Chrome toolbar
+## Features
 
-### Testing the Extension
+Features can be enabled or disabled individually from the **Features** tab in the extension popup.
 
-Click the extension icon in the Chrome toolbar to see the "Hello World" popup!
+### GitHub Comment Spelling & Grammar Fix
 
-## Development
+Adds an AI-powered fix button to every GitHub comment box (pull requests, issues, review comments).
 
-### Build Commands
+- Click the 🌐 button next to a comment textarea to analyse the text
+- A popup appears with the corrected version of your comment
+- Accept the suggestion to replace your text, or dismiss it to keep the original
+- Requires an OpenAI API key (see [Settings](#settings))
 
-- **Production build**: `npm run build`
-- **Development build with watch mode**: `npm run watch`
+### GitHub Stats Viewer
 
-### Making Changes
+Injects a **Developer Metrics** panel on any GitHub user profile page, displayed below the contribution graph.
 
-1. Edit the React components in the `src/` directory
-2. Run `npm run build` to rebuild
-3. Click the refresh icon in `chrome://extensions/` to reload the extension
-4. Click the extension icon to see your changes
+**Metrics shown:**
+- **Merged PRs** — number of pull requests merged in the selected period
+- **Lines of Code** — total lines added + deleted across all merged PRs
 
-## File Descriptions
+**Filters:**
+- Toggle between **Weekly** (current week) and **Monthly** (current month) views
 
-- **manifest.json** - Defines extension metadata, permissions, and popup configuration
-- **src/popup.tsx** - React entry point that renders the App component
-- **src/App.tsx** - Main React component displaying "Hello World"
-- **src/App.css** - Styling for the App component
-- **webpack.config.js** - Bundles React code for the browser
-- **tsconfig.json** - TypeScript compiler settings
+**Repository selector:**
+- Choose **All Repositories** or pick specific repos from the dropdown
+- Predefined repositories are included by default
+- **Add custom repos** — type any repository name in the input field at the top of the dropdown and press Enter or click `+` to add it; custom repos are saved across browser sessions
+- Remove custom repos at any time with the `×` button next to each entry
 
-## Customization
+## Settings
 
-### Changing the Popup Content
+Open the **Settings** tab in the extension popup to configure:
 
-Edit [src/App.tsx](src/App.tsx) to modify what's displayed in the extension popup.
-
-### Styling
-
-Edit [src/App.css](src/App.css) to change the appearance of the extension.
-
-### Extension Name and Description
-
-Edit [manifest.json](manifest.json) to update the extension's name, description, and other metadata.
+- **OpenAI API Key** — required for the GitHub Comment Fix feature. Your key is stored locally in Chrome storage and never sent anywhere other than the OpenAI API.
 
 ## Troubleshooting
 
-- **Extension not loading**: Make sure you selected the `dist/` folder, not the project root
-- **Changes not visible**: Refresh the extension in `chrome://extensions/`
-- **Build errors**: Delete `node_modules/` and `dist/`, then run `npm install` and `npm run build`
+- **Extension not loading** — make sure you selected the `dist/` folder, not the project root
+- **Changes not visible** — after rebuilding, click the refresh icon on the extension card in `chrome://extensions/`
+- **Build errors** — delete `node_modules/` and `dist/`, then run `npm install` and `npm run build`
+- **Comment Fix not working** — check that your OpenAI API key is saved in the Settings tab
 
 ## License
 
